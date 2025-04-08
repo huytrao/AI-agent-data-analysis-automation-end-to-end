@@ -1,0 +1,8 @@
+https://www.researchgate.net/figure/General-workflow-of-AI-agent-Typically-an-AI-agent-consists-of-three-components_fig1_381190070
+
+Diagram-AI-agent.
+AI engineer thì nó đúng nghĩa của nó luôn. 
+Là bạn phải học lập trình để bạn có thể tạo ra nó (implementation)
+Là bạn phải học nền tảng của kỹ sư là phải biết cách giải quyết vấn đề: đọc và hiểu vấn đề, phân tích, derive requitements, design, architect the workflow diagram solution.
+
+The difference between an excellent engineer and an average one lies in the ability to envision, design and architect the entire solution from the ground up. Về điểm này mình chỉ là kỹ sư bình thường 😅
