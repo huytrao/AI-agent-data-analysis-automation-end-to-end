@@ -23,9 +23,12 @@ services:
       - input_datasets:/data/input
       - output_reports:/data/output
     depends_on:
-      - postgres
-      - redis
-      - qdrant
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      qdrant:
+        condition: service_started
     restart: unless-stopped
 
   postgres:
@@ -53,7 +56,8 @@ services:
     ports:
       - "8080:80" # Expose pgAdmin on port 8080
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     restart: unless-stopped
 
   qdrant:
@@ -63,9 +67,10 @@ services:
     volumes:
       - qdrant_data:/qdrant/storage
     restart: unless-stopped
-
   redis:
     image: redis:alpine
+    ports:
+      - "6379:6379" # Expose Redis on port 6379
     volumes:
       - redis_data:/data
     restart: unless-stopped

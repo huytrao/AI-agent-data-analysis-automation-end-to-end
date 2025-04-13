@@ -1,0 +1,225 @@
+{
+  "name": "Demo: My first AI Agent in n8n",
+  "nodes": [
+    {
+      "parameters": {
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "tableName": {
+          "__rl": true,
+          "value": "uploaded_data",
+          "mode": "name"
+        },
+        "additionalFields": {},
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgresTrigger",
+      "typeVersion": 1,
+      "position": [
+        880,
+        -60
+      ],
+      "id": "4ef06467-9a68-4aba-9a8f-565efbb7146a",
+      "name": "Postgres Trigger",
+      "credentials": {
+        "postgres": {
+          "id": "i74fm7z7OrrGplkV",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.0-pro-exp",
+        "options": {
+          "topK": 0,
+          "topP": 0
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        1340,
+        280
+      ],
+      "id": "664a829e-74d3-45c5-985a-97f029889a80",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "WVpQ2jOQT8VAX7qW",
+          "name": "Google Gemini(PaLM) Api account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=No yapping! \nHelp me clarify the problem in this data. \nPlease, you should return 5 questions to more clarify the data; no Yampping, just return answers.",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=The context of data is {{ $('CONTEXT table query') }}\nThe problem of the data is {{ $('PROBLEM table query') }}\nThe 20 sample of data is {{ $('Uploaded table query') }}"
+        }
+      },
+      "id": "cdbfd509-4e29-42a9-b6fc-f1e80cd975d0",
+      "name": "AI Agent1",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        1420,
+        -60
+      ],
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT * FROM uploaded_data ORDER BY RANDOM() LIMIT 20;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1120,
+        -240
+      ],
+      "id": "8f245f5a-457d-4b2c-9d5d-8ea44f3ddb38",
+      "name": "Uploaded table query",
+      "credentials": {
+        "postgres": {
+          "id": "i74fm7z7OrrGplkV",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT * FROM context_table;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1120,
+        120
+      ],
+      "id": "908ec9ed-40a9-4581-8fc4-77779baab73b",
+      "name": "CONTEXT table query",
+      "credentials": {
+        "postgres": {
+          "id": "i74fm7z7OrrGplkV",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT * FROM PROBLEM_TABLE;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1120,
+        -60
+      ],
+      "id": "eade8455-deb7-4808-8015-945c403641f4",
+      "name": "PROBLEM table query",
+      "credentials": {
+        "postgres": {
+          "id": "i74fm7z7OrrGplkV",
+          "name": "Postgres account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Postgres Trigger": {
+      "main": [
+        [
+          {
+            "node": "Uploaded table query",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "PROBLEM table query",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "CONTEXT table query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        []
+      ]
+    },
+    "Uploaded table query": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CONTEXT table query": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PROBLEM table query": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "7885c84d-d7ec-4d98-a42c-6470fe950b42",
+  "meta": {
+    "templateId": "PT1i+zU92Ii5O2XCObkhfHJR5h9rNJTpiCIkYJk9jHU=",
+    "templateCredsSetupCompleted": true,
+    "instanceId": "3006a5d6772217f5ebf10e103499012896c18b16962721572449c979edef3060"
+  },
+  "id": "eqOsd6j9KoMgq9Xc",
+  "tags": []
+}

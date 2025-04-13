@@ -1,0 +1,245 @@
+{
+  "name": "Demo: My first AI Agent in n8n",
+  "nodes": [
+    {
+      "parameters": {
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "tableName": {
+          "__rl": true,
+          "value": "uploaded_data",
+          "mode": "name"
+        },
+        "additionalFields": {},
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgresTrigger",
+      "typeVersion": 1,
+      "position": [
+        820,
+        -40
+      ],
+      "id": "4ef06467-9a68-4aba-9a8f-565efbb7146a",
+      "name": "Postgres Trigger",
+      "credentials": {
+        "postgres": {
+          "id": "i74fm7z7OrrGplkV",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.0-pro-exp",
+        "options": {
+          "temperature": 0,
+          "topK": 0,
+          "topP": 0
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        1520,
+        240
+      ],
+      "id": "664a829e-74d3-45c5-985a-97f029889a80",
+      "name": "Google Gemini Chat Model",
+      "notesInFlow": false,
+      "credentials": {
+        "googlePalmApi": {
+          "id": "WVpQ2jOQT8VAX7qW",
+          "name": "API key 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=\nThe context of data is {{ $('CONTEXT table query').all() }}\nThe problem of the data is {{ $('PROBLEM table query').all() }}\nThe 20 samples I take of data is {{ $('Uploaded table query').all() }}\nYou are a professional data analyst.\nReturn 5 questions Additionally, if you have questions about this data to clarify with our customer, just return the list of question No Yamp.",
+        "options": {}
+      },
+      "id": "cdbfd509-4e29-42a9-b6fc-f1e80cd975d0",
+      "name": "AI Agent1",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        1600,
+        -40
+      ],
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT * FROM uploaded_data ORDER BY RANDOM() LIMIT 20;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1000,
+        -40
+      ],
+      "id": "8f245f5a-457d-4b2c-9d5d-8ea44f3ddb38",
+      "name": "Uploaded table query",
+      "alwaysOutputData": true,
+      "executeOnce": true,
+      "credentials": {
+        "postgres": {
+          "id": "i74fm7z7OrrGplkV",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT * FROM context_table;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1360,
+        -40
+      ],
+      "id": "908ec9ed-40a9-4581-8fc4-77779baab73b",
+      "name": "CONTEXT table query",
+      "alwaysOutputData": true,
+      "executeOnce": true,
+      "credentials": {
+        "postgres": {
+          "id": "i74fm7z7OrrGplkV",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT * FROM PROBLEM_TABLE;",
+        "options": {
+          "largeNumbersOutput": "text"
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1180,
+        -40
+      ],
+      "id": "eade8455-deb7-4808-8015-945c403641f4",
+      "name": "PROBLEM table query",
+      "executeOnce": true,
+      "alwaysOutputData": true,
+      "credentials": {
+        "postgres": {
+          "id": "i74fm7z7OrrGplkV",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.0-pro-exp",
+        "options": {
+          "topK": 0,
+          "topP": 0
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        880,
+        420
+      ],
+      "id": "e0738045-f50d-4d45-b15f-533588c4532f",
+      "name": "Google Gemini Chat Model1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "WVpQ2jOQT8VAX7qW",
+          "name": "API key 3"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Postgres Trigger": {
+      "main": [
+        [
+          {
+            "node": "Uploaded table query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        []
+      ]
+    },
+    "Uploaded table query": {
+      "main": [
+        [
+          {
+            "node": "PROBLEM table query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CONTEXT table query": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PROBLEM table query": {
+      "main": [
+        [
+          {
+            "node": "CONTEXT table query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "ba9972d8-3035-43e6-b3b3-6df28b290c97",
+  "meta": {
+    "templateId": "PT1i+zU92Ii5O2XCObkhfHJR5h9rNJTpiCIkYJk9jHU=",
+    "templateCredsSetupCompleted": true,
+    "instanceId": "3006a5d6772217f5ebf10e103499012896c18b16962721572449c979edef3060"
+  },
+  "id": "eqOsd6j9KoMgq9Xc",
+  "tags": []
+}
